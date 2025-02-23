@@ -1,4 +1,4 @@
 
-def generate_tests(args):
+def generate_tests(file_paths: list[str]):
     print("Hello, World!")
-    print(args)
+    print(file_paths)
