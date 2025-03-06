@@ -13,7 +13,7 @@ def find_all_code_files(folder_path: str) -> list[str]:
 
     for root, _, files in os.walk(folder_path):
         for file in files:
-            if file.endswith('.py') and not file.startswith('__'):
+            if file.endswith('.py') and not file.startswith(('__', 'test_')):
                 code_files.append(os.path.join(root, file))
 
     return code_files
