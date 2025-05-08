@@ -25,16 +25,15 @@ def generate_test_file(file_path: str) -> str:
     Returns:
         str: The generated test file content.
     """
-    # TODO: Write logic to generate test for funcs
 
     functions = get_functions_from_file(file_path)
     text_func = "import pytest\n\n"
     for function in functions:
-        text_func += f"def test_{function}():\n"  
-        text_func += "    assert 1 + 1 == 2\n\n"        
+        text_func += f"def test_{function}():\n"
+        text_func += "    assert 1 + 1 == 2\n\n"
     return text_func
 
-    
+
 def get_functions_from_file(file_path: str) -> list:
     """
     Find and return all functions in python file
