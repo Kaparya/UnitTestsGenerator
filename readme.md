@@ -13,10 +13,18 @@ UnitTestsGenerator - программа, автоматически генери
    
 2. Запускаем код
 
+    Общий формат запуска: 
+    ```
+    ваш_компилятор_питона main.py --file_path <path_to_file>
+    ```
+
+   - `--file_path` - параметр, если генерация тестов для одного файла
+   - `--folder_path` - если директория
+
+    Примеры:
+
     ```
    python3 main.py --file_path <path_to_file>
-   
-   or
-   
-   python3 main.py --folder_path <path_to_folder>
+   или
+   py main.py --folder_path <path_to_folder>
    ```
