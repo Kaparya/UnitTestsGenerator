@@ -1,12 +1,14 @@
 import os
 
 
-def save_file(original_file_path: str, content: str):
+def save_file(original_file_path: str, content: str) -> str:
     """
     Save the generated content to a file.
     Args:
         original_file_path (str): The path to the original file.
         content (str): The content to save.
+    Returns:
+        str: The path to the saved test file.
     """
 
     split_path = original_file_path.split('/')
@@ -23,3 +25,4 @@ def save_file(original_file_path: str, content: str):
 
     with open(test_file_path, 'w') as test_file:
         test_file.write(content)
+    return test_file_path

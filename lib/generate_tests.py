@@ -1,20 +1,26 @@
 from lib.save_file import save_file
 
+import ast
 import importlib.util
 import os
 import sys
 import types
 
 
-def generate_tests(file_paths: list[str]):
+def generate_tests(file_paths: list[str]) -> list[str]:
     """
     Generate test files for the given list of file paths.
     Args:
         file_paths (list[str]): A list of paths to the files to generate tests for.
+    Returns:
+        str: The generated test file (or files) location.
     """
+    generated_pathes = []
+
     for file_path in file_paths:
         generated_tests = generate_test_file(file_path)
-        save_file(file_path, generated_tests)
+        generated_pathes.append(save_file(file_path, generated_tests))
+    return generated_pathes
 
 
 def generate_test_file(file_path: str) -> str:
@@ -34,7 +40,7 @@ def generate_test_file(file_path: str) -> str:
     return text_func
 
 
-def get_functions_from_file(file_path: str) -> list:
+def get_functions_from_file(file_path: str) -> list[str]:
     """
     Find and return all functions in python file
     Args:
@@ -42,18 +48,11 @@ def get_functions_from_file(file_path: str) -> list:
     Returns:
         list: list of strings where each string is the name of the function in file
     """
+    with open(file_path, 'r', encoding='utf-8') as f:
+        file_content = f.read()
 
-    abs_path = os.path.abspath(file_path)
-    module_name = os.path.splitext(os.path.basename(file_path))[0]
+    tree = ast.parse(file_content, filename=file_path)
 
-    spec = importlib.util.spec_from_file_location(module_name, abs_path)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[module_name] = module
-    spec.loader.exec_module(module)
-
-    functions = [
-        name for name, obj in vars(module).items()
-        if callable(obj) and isinstance(obj, types.FunctionType)
-    ]
+    functions = [node.name for node in tree.body if isinstance(node, ast.FunctionDef)]
 
     return functions

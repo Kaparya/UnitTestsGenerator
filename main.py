@@ -2,6 +2,7 @@ from lib import generate_tests
 from lib import find_all_code_files
 
 import argparse
+import pytest
 
 
 def main():
@@ -21,10 +22,13 @@ def main():
         exit(1)
 
     if args.file_path:
-        generate_tests([args.file_path])
+        pytest_pathes = generate_tests([args.file_path])
     elif args.folder_path:
         code_files = find_all_code_files(args.folder_path)
-        generate_tests(code_files)
+        pytest_pathes = generate_tests(code_files)
+
+    pytest.main(pytest_pathes)
+
 
 
 if __name__ == '__main__':

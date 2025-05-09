@@ -1,4 +1,5 @@
 tests/
+test*.py
 
 # PyCharm project files
 .idea/
