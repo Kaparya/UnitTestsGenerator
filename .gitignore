@@ -1,8 +1,9 @@
 tests/
 test*.py
 
-# PyCharm project files
+# Project files
 .idea/
+.vscode/
 
 # Python bytecode
 __pycache__/

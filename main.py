@@ -8,12 +8,17 @@ import pytest
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--file_path',
-        help='The path to the file to generate tests for',
+        "--file_path",
+        help="The path to the file to generate tests for",
     )
     parser.add_argument(
-        '--folder_path',
-        help='The path to the folder to generate tests for',
+        "--folder_path",
+        help="The path to the folder to generate tests for",
+    )
+    parser.add_argument(
+        "-c", "--canonize",
+        help="Canonize generated tests",
+        action="store_true",
     )
 
     args = parser.parse_args()
@@ -22,14 +27,13 @@ def main():
         exit(1)
 
     if args.file_path:
-        pytest_pathes = generate_tests([args.file_path])
+        pytest_pathes = generate_tests([args.file_path], args.canonize)
     elif args.folder_path:
         code_files = find_all_code_files(args.folder_path)
-        pytest_pathes = generate_tests(code_files)
+        pytest_pathes = generate_tests(code_files, args.canonize)
 
     pytest.main(pytest_pathes)
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
