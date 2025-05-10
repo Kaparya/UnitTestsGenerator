@@ -1,4 +1,5 @@
 import os
+import re
 
 
 def save_file(original_file_path: str, content: str) -> str:
@@ -11,7 +12,7 @@ def save_file(original_file_path: str, content: str) -> str:
         str: The path to the saved test file.
     """
 
-    split_path = original_file_path.split("/")
+    split_path = re.split(r"[\\/]+", original_file_path)
 
     tests_folder = split_path[:-1]
     tests_folder.append("tests")
