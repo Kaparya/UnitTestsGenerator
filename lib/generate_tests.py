@@ -1,4 +1,5 @@
-from lib.find_code import get_functions_from_file
+import lib.parse_raw_file as parse_raw_file
+
 from lib.save_file import save_file
 
 
@@ -25,9 +26,16 @@ def generate_test_file(file_path: str, canonize: bool = False) -> str:
         str: The generated test file content.
     """
 
-    functions = get_functions_from_file(file_path)
-    text_func = "import pytest\n\n"
+    functions = parse_raw_file.get_functions(file_path)
+    imports = parse_raw_file.get_imports(file_path)
+
+    text_func = ""
+    for lib in imports:
+        text_func += f"{lib}\n"
+
+    text_func += "\n\n"
+
     for function in functions:
         text_func += f"def test_{function}():\n"
-        text_func += "    assert 1 + 1 == 2\n\n"
+        text_func += f"    assert 1 + 1 == 2\n\n"
     return text_func
