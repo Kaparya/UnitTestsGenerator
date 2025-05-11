@@ -33,10 +33,15 @@ def generate_test_file(
         str: The generated test file content.
     """
 
-    if not project_directory.startswith(".") and project_directory in file_path:
-        file_path = file_path.replace(project_directory, "")
+    file_path_copy = file_path
+    if (
+        not project_directory.startswith("./")
+        and not project_directory == "."
+        and project_directory in file_path
+    ):
+        file_path_copy = file_path.replace(project_directory, "")
 
-    module_name = file_path.split(".")[-2].replace("/", ".")
+    module_name = file_path_copy.split(".")[-2].replace("/", ".")
     if module_name.startswith("."):
         module_name = module_name[1:]
     print("--------------", module_name, file_path)
