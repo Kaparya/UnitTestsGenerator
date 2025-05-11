@@ -27,3 +27,15 @@ def save_file(original_file_path: str, content: str) -> str:
     with open(test_file_path, "w") as test_file:
         test_file.write(content)
     return test_file_path
+
+
+def create_conftest(project_directory: str) -> None:
+    """
+    Create a conftest.py file in the tests folder.
+    Args:
+        project_directory (str): The path to the project directory root.
+    """
+    conftest_path = os.path.join(project_directory, "conftest.py")
+    if not os.path.isfile(conftest_path):
+        with open(conftest_path, "w") as conftest_file:
+            conftest_file.write("")

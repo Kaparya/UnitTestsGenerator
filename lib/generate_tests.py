@@ -5,11 +5,14 @@ import lib.parse_raw_file as parse_raw_file
 from lib.save_file import save_file
 
 
-def generate_tests(file_paths: list[str], canonize: bool = False) -> list[str]:
+def generate_tests(
+    file_paths: list[str], project_directory: str, canonize: bool = False
+) -> list[str]:
     """
     Generate test files for the given list of file paths.
     Args:
         file_paths (list[str]): A list of paths to the files to generate tests for.
+        project_directory (str): The path to the project directory root.
         canonize (bool): Whether to canonize the generated tests (default: False).
     Returns:
         str: The generated test file (or files) location.
@@ -17,18 +20,27 @@ def generate_tests(file_paths: list[str], canonize: bool = False) -> list[str]:
     generated_pathes = []
 
     for file_path in file_paths:
-        generated_tests = generate_test_file(file_path, canonize)
+        generated_tests = generate_test_file(file_path, project_directory, canonize)
         generated_pathes.append(save_file(file_path, generated_tests))
     return generated_pathes
 
 
-def generate_test_file(file_path: str, canonize: bool = False) -> str:
+def generate_test_file(
+    file_path: str, project_directory: str, canonize: bool = False
+) -> str:
     """
     Returns:
         str: The generated test file content.
     """
 
-    module_name  = re.split(r"[\\/]+", file_path)[-1].split(".")[0]
+    if not project_directory.startswith(".") and project_directory in file_path:
+        file_path = file_path.replace(project_directory, "")
+
+    module_name = file_path.split(".")[-2].replace("/", ".")
+    if module_name.startswith("."):
+        module_name = module_name[1:]
+    print("--------------", module_name, file_path)
+
     functions = parse_raw_file.get_functions(file_path)
     imports = parse_raw_file.get_imports(file_path)
 
@@ -44,8 +56,9 @@ def generate_test_file(file_path: str, canonize: bool = False) -> str:
 
     additional_tests = add_input_output_tests(file_path)
     text_func += additional_tests
-    
+
     return text_func
+
 
 def add_input_output_tests(file_path: str) -> str:
     """
@@ -55,17 +68,23 @@ def add_input_output_tests(file_path: str) -> str:
     Returns:
         str: The generated text of tests.
     """
-    text_func = ''
+    text_func = ""
     functions_info = parse_raw_file.get_functions_info(file_path)
     for func in functions_info:
         print(1)
-        text_func += f"def test_{func['name']}():\n"
-        input = [str(generate_random_value(annotation)) for annotation in func['inputs']]
-        print(func['name'])
+        text_func += f"def test_types_{func['name']}():\n"
+        input = [
+            str(generate_random_value(annotation)) for annotation in func["inputs"]
+        ]
+        print(func["name"])
         input_text = ", ".join(input)
-        text_func += f"    assert type({func['name']}({input_text})) == {func['return_type']}\n\n"
+        clean_return_type = func["return_type"].split("[")[0].split("(")[0]
+        text_func += (
+            f"    assert type({func['name']}({input_text})) == {clean_return_type}\n\n"
+        )
 
     return text_func
+
 
 def generate_random_value(annotation):
     if annotation == "int":
@@ -73,17 +92,14 @@ def generate_random_value(annotation):
     elif annotation == "float":
         return round(random.uniform(0.0, 100.0), 2)
     elif annotation == "str":
-        return ''.join(random.choices('abcdefghijklmnopqrstuvwxyz', k=5))
+        return '"' + "".join(random.choices("abcdefghijklmnopqrstuvwxyz", k=5)) + '"'
     elif annotation == "bool":
         return random.choice([True, False])
     elif annotation.startswith("list") or annotation.startswith("List"):
-        return [random.randint(0, 10) for _ in range(3)]
+        inside_value = generate_random_value(annotation[5:-1])
+        return [inside_value for _ in range(3)]
     elif annotation.startswith("dict") or annotation.startswith("Dict"):
         return {str(i): random.randint(0, 10) for i in range(3)}
     elif annotation.startswith("Optional"):
         return random.choice([generate_random_value(annotation[9:-1]), None])
     return None
-
-    
-
-    

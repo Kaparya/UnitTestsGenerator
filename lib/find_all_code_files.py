@@ -15,7 +15,9 @@ def find_all_code_files(folder_path: str) -> list[str]:
         dirs[:] = [d for d in dirs if not d.startswith((".", "__"))]
 
         for file in files:
-            if file.endswith(".py") and not file.startswith(("__init__", "test_")):
+            if file.endswith(".py") and not file.startswith(
+                ("__init__", "test_", "conftest")
+            ):
                 code_files.append(os.path.join(root, file))
 
     return code_files

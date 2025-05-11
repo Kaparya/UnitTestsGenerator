@@ -1,5 +1,6 @@
 from lib import generate_tests
 from lib import find_all_code_files
+from lib.save_file import create_conftest
 
 import argparse
 import pytest
@@ -16,9 +17,16 @@ def main():
         help="The path to the folder to generate tests for",
     )
     parser.add_argument(
-        "-c", "--canonize",
+        "-c",
+        "--canonize",
         help="Canonize generated tests",
         action="store_true",
+    )
+    parser.add_argument(
+        "-pd",
+        "--project_directory",
+        help="Path to the project directory root",
+        required=True,
     )
 
     args = parser.parse_args()
@@ -26,11 +34,16 @@ def main():
         parser.print_help()
         exit(1)
 
+    create_conftest(args.project_directory)
     if args.file_path:
-        pytest_pathes = generate_tests([args.file_path], args.canonize)
+        pytest_pathes = generate_tests(
+            [args.file_path], args.project_directory, args.canonize
+        )
     elif args.folder_path:
         code_files = find_all_code_files(args.folder_path)
-        pytest_pathes = generate_tests(code_files, args.canonize)
+        pytest_pathes = generate_tests(
+            code_files, args.project_directory, args.canonize
+        )
 
     pytest.main(pytest_pathes)
 

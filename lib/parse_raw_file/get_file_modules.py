@@ -9,7 +9,7 @@ def get_functions(file_path: str) -> list[str]:
     Returns:
         list: list of strings where each string is the name of the function in file
     """
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, "r") as f:
         file_content = f.read()
 
     tree = ast.parse(file_content, filename=file_path)
@@ -29,11 +29,12 @@ def get_imports(file_path: str) -> list[str]:
     imports = []
 
     with open(file_path, "r") as f:
-        for line in f: 
+        for line in f:
             if line.startswith("import") or line.startswith("from"):
                 imports.append(line.strip())
 
     return imports
+
 
 def get_functions_info(file_path: str) -> list[dict]:
     """
@@ -59,6 +60,8 @@ def get_functions_info(file_path: str) -> list[dict]:
                     inputs.append(None)
             return_type = ast.unparse(node.returns) if node.returns else None
             if return_type is not None:
-                functions_info.append({"name": node.name, "inputs": inputs, "return_type": return_type})
+                functions_info.append(
+                    {"name": node.name, "inputs": inputs, "return_type": return_type}
+                )
 
     return functions_info
