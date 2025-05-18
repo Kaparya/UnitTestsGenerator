@@ -21,3 +21,4 @@ env.py
 
 # Optional: environment variables
 .env
+tests/test_main.py
