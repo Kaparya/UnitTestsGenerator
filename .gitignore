@@ -1,5 +1,5 @@
-tests/
-test*.py
+test.py
+conftest.py
 
 # Project files
 .idea/

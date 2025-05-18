@@ -65,3 +65,18 @@ def get_functions_info(file_path: str) -> list[dict]:
                 )
 
     return functions_info
+
+
+def get_module_name(file_path: str, project_directory: str) -> str:
+    if (
+        not project_directory.startswith("./")
+        and not project_directory == "."
+        and project_directory in file_path
+    ):
+        file_path = file_path.replace(project_directory, "")
+
+    module_name = file_path.split(".")[-2].replace("/", ".").replace("\\", ".")
+    if module_name.startswith((".", "\\", "/")):
+        module_name = module_name[1:]
+    print("--------------", module_name, file_path)
+    return module_name

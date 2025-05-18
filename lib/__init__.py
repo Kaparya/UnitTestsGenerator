@@ -1,4 +1,4 @@
-from .generate_tests import generate_tests
+from .generate_tests.generate_tests import generate_tests
 from .find_all_code_files import find_all_code_files
 from .save_file import create_conftest
 
