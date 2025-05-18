@@ -3,11 +3,11 @@ from .generate_random_value import generate_random_value
 import lib.parse_raw_file as parse_raw_file
 
 
-def add_input_output_tests(file_path: str) -> str:
+def add_types_tests(file_path: str) -> str:
     """
     Generate test functions to test declared and actual outputs of functions.
     Args:
-        file_paths (str): A pathmto the file to generate tests for.
+        file_paths (str): A path to the file to generate tests for.
     Returns:
         str: The generated text of tests.
     """

@@ -1,4 +1,5 @@
-from .check_types import add_input_output_tests
+from .check_types import add_types_tests
+from .check_values import add_values_tests
 
 import lib.parse_raw_file as parse_raw_file
 from lib.save_file import save_file
@@ -37,7 +38,7 @@ def generate_test_file(
 
     functions = parse_raw_file.get_functions(file_path)
 
-    text_func = ""
+    text_func = "import pytest\n"
     text_func += f"from {module_name} import " + ", ".join(functions)
     text_func += "\n\n"
 
@@ -45,7 +46,7 @@ def generate_test_file(
         text_func += f"def test_{function}():\n"
         text_func += f"    assert 1 + 1 == 2\n\n"
 
-    additional_tests = add_input_output_tests(file_path)
-    text_func += additional_tests
+    # text_func += add_types_tests(file_path)
+    text_func += add_values_tests(file_path, module_name, project_directory)
 
     return text_func

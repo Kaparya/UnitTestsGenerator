@@ -2,7 +2,7 @@ import os
 import re
 
 
-def save_file(original_file_path: str, content: str) -> str:
+def save_file(original_file_path: str, content: str):
     """
     Save the generated content to a file.
     Args:
