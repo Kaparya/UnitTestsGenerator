@@ -14,7 +14,6 @@ def add_types_tests(file_path: str) -> str:
     text_func = ""
     functions_info = parse_raw_file.get_functions_info(file_path)
     for func in functions_info:
-        print(1)
         text_func += f"def test_types_{func['name']}():\n"
         input = [
             str(generate_random_value(annotation)) for annotation in func["inputs"]

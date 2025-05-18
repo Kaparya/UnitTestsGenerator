@@ -4,7 +4,6 @@ import os
 import sys
 import ast
 import importlib.util
-from typing import Callable
 
 
 def add_project_path(path):

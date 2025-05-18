@@ -42,11 +42,7 @@ def generate_test_file(
     text_func += f"from {module_name} import " + ", ".join(functions)
     text_func += "\n\n"
 
-    for function in functions:
-        text_func += f"def test_{function}():\n"
-        text_func += f"    assert 1 + 1 == 2\n\n"
-
-    # text_func += add_types_tests(file_path)
+    text_func += add_types_tests(file_path)
     text_func += add_values_tests(file_path, module_name, project_directory)
 
     return text_func
