@@ -2,14 +2,13 @@ import os
 import re
 
 
-def save_file(original_file_path: str, content: str):
+def create_path_testfile(original_file_path: str) -> str:
     """
-    Save the generated content to a file.
+    Generate path of file with tests  
     Args:
         original_file_path (str): The path to the original file.
-        content (str): The content to save.
     Returns:
-        str: The path to the saved test file.
+        str: The path of test file.
     """
 
     split_path = re.split(r"[\\/]+", original_file_path)
@@ -23,6 +22,21 @@ def save_file(original_file_path: str, content: str):
 
     test_file_path = "test_" + ".".join(split_path[-1].split(".")[:-1]) + ".py"
     test_file_path = tests_folder + test_file_path
+
+    return test_file_path
+
+
+def save_file(original_file_path: str, content: str):
+    """
+    Save the generated content to a file.
+    Args:
+        original_file_path (str): The path to the original file.
+        content (str): The content to save.
+    Returns:
+        str: The path to the saved test file.
+    """
+
+    test_file_path = create_path_testfile(original_file_path)
 
     with open(test_file_path, "w") as test_file:
         test_file.write(content)
