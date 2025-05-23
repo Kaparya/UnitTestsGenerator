@@ -37,17 +37,17 @@ def get_imports(file_path: str) -> list[str]:
     return imports
 
 
-def get_functions_info(file_path: str) -> list[dict]:
+def get_functions_info(file_path: str) -> dict:
     """
     Find and return all functions in file
     Args:
         file_path (str): The path to the file to generate tests for.
     Returns:
-        list: list of dicts where each element contains the name of the function, types of inputs and type of return value
+        dict: where key is function name, value is a text of function
     """
 
     if not os.path.exists(file_path):
-        return []
+        return {}
 
     with open(file_path, "r", encoding="utf-8") as f:
         source = f.read()
