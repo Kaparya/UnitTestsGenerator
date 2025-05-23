@@ -1,4 +1,5 @@
 import ast
+import os
 
 
 def get_functions(file_path: str) -> list[str]:
@@ -44,7 +45,10 @@ def get_functions_info(file_path: str) -> list[dict]:
     Returns:
         list: list of dicts where each element contains the name of the function, types of inputs and type of return value
     """
-    
+
+    if not os.path.exists(file_path):
+        return []
+
     with open(file_path, "r", encoding="utf-8") as f:
         source = f.read()
 
@@ -54,8 +58,10 @@ def get_functions_info(file_path: str) -> list[dict]:
 
     for node in ast.walk(tree):
         if isinstance(node, ast.FunctionDef):
-            start_line = node.lineno - 1  
-            end_line = node.end_lineno if hasattr(node, 'end_lineno') else node.body[-1].lineno
+            start_line = node.lineno - 1
+            end_line = (
+                node.end_lineno if hasattr(node, "end_lineno") else node.body[-1].lineno
+            )
             func_text = "\n".join(lines[start_line:end_line])
             functions[node.name] = func_text
 

@@ -97,6 +97,8 @@ def add_values_tests(file_path: str, module_name: str, project_directory: str) -
             exception_name = None
             try:
                 result = function["exec"](*args)
+                if isinstance(result, str):
+                    result = '"' + result + '"'
             except Exception as e:
                 exception_name = type(e).__name__
                 print(exception_name)
