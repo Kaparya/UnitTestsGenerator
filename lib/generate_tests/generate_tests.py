@@ -2,6 +2,7 @@ from .check_types import add_types_tests
 from .check_values import add_values_tests
 
 import lib.parse_raw_file as parse_raw_file
+from lib.get_complexity import analyze_file_complexity
 from lib.save_file import save_file
 
 
@@ -40,6 +41,11 @@ def generate_test_file(
 
     text_func = "import pytest\n"
     text_func += f"from {module_name} import " + ", ".join(functions)
+    text_func += "\n\n"
+
+    complexities = analyze_file_complexity(file_path)
+    for name, complexity in complexities.items():
+        text_func += f"# Complexity of function {name} is {complexity}\n"
     text_func += "\n\n"
 
     text_func += add_types_tests(file_path, module_name, project_directory, canonize)

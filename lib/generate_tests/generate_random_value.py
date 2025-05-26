@@ -1,8 +1,10 @@
 import random
 
 
-def generate_random_value(annotation):
-    if annotation == "int":
+def generate_random_value(annotation: str):
+    if annotation is None or annotation == "None":
+        return None
+    elif annotation == "int":
         return random.randint(0, 100)
     elif annotation == "float":
         return round(random.uniform(0.0, 100.0), 2)
