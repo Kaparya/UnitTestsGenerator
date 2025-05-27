@@ -44,9 +44,6 @@ def add_types_tests(
             text_func += f"def test_types_{name}():\n"
             clean_return_type = function["returns"].split("[")[0].split("(")[0]
 
-            if " " in clean_return_type:
-                clean_return_type = "None.__class__"
-
             text_func += (
                 f"    assert type({name}({input_text})) == {clean_return_type}\n\n"
             )
