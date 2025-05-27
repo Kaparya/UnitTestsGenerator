@@ -26,7 +26,6 @@ def main():
         "-pd",
         "--project_directory",
         help="Path to the project directory root",
-        required=True,
     )
 
     args = parser.parse_args()
@@ -34,16 +33,20 @@ def main():
         parser.print_help()
         exit(1)
 
-    create_conftest(args.project_directory)
     if args.file_path:
+        if not args.project_directory:
+            print("Project directory must be specified when using a file path.")
+        create_conftest(args.project_directory)
         pytest_pathes = generate_tests(
             [args.file_path], args.project_directory, args.canonize
         )
     elif args.folder_path:
         code_files = find_all_code_files(args.folder_path)
-        pytest_pathes = generate_tests(
-            code_files, args.project_directory, args.canonize
-        )
+        project_directory = args.folder_path
+        if args.project_directory:
+            project_directory = args.project_directory
+        create_conftest(project_directory)
+        pytest_pathes = generate_tests(code_files, project_directory, args.canonize)
 
     pytest.main(pytest_pathes)
 

@@ -20,11 +20,12 @@ UnitTestsGenerator - программа, автоматически генери
 
    - `--file_path` - параметр, если генерация тестов для одного файла
    - `--folder_path` - если директория
+   - `--project_directory` / `-pd` - корневая директория запускаемого проекта (для случая, если Вы генерируете тесты не для всего проекта - то требуется указать корневую директорию проекта)
 
     Примеры:
 
     ```
-   python3 main.py --file_path <path_to_file>
+   python3 main.py --file_path <path_to_file> --project_directory <path_to_directory>
    или
    py main.py --folder_path <path_to_folder>
    ```
