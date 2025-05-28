@@ -31,7 +31,7 @@ def add_types_tests(
         if function["returns"] is None or function["returns"] == "None":
             continue
 
-        input = [generate_random_value(arg) for arg in function["args"]]
+        input = [generate_random_value(arg) for arg in function["args_types"]]
 
         exception_name = None
         try:

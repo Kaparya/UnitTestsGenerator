@@ -1,4 +1,5 @@
 from .generate_random_value import generate_random_value
+from lib.control_flow_generator import solve_conditions
 
 import os
 import sys
@@ -25,16 +26,19 @@ def parse_function_names(filepath: str):
     for node in ast.walk(tree):
         if isinstance(node, ast.FunctionDef):
             args_types = []
+            args_names = []
             for arg in node.args.args:
                 if arg.annotation:
                     annotation = ast.unparse(arg.annotation)
                     args_types.append(annotation)
                 else:
                     args_types.append(None)
+                args_names.append(arg.arg)
             functions.append(
                 {
                     "name": node.name,
-                    "args": args_types,
+                    "args_types": args_types,
+                    "args_names": args_names,
                     "defaults": node.args.defaults,
                     "returns": ast.unparse(node.returns) if node.returns else None,
                 }
@@ -62,14 +66,20 @@ def load_functions_dynamically(filepath: str, module_name: str):
             if callable(func):
                 functions[cur_func["name"]] = {
                     "exec": func,
-                    "args": cur_func["args"],
+                    "args_names": cur_func["args_names"],
+                    "args_types": cur_func["args_types"],
                     "returns": cur_func["returns"],
                 }
 
     return functions
 
 
-def add_values_tests(file_path: str, module_name: str, project_directory: str) -> str:
+def add_values_tests(
+    file_path: str,
+    module_name: str,
+    project_directory: str,
+    conditions: dict[str, dict[str, list[str]]],
+) -> str:
     """
     Generate test functions to test correct and actual outputs of functions.
     Returns:
@@ -81,13 +91,22 @@ def add_values_tests(file_path: str, module_name: str, project_directory: str) -
     text_func = ""
     for name, function in load_functions_dynamically(file_path, module_name).items():
         print(f"Function name: {name}")
-        args_types = function["args"]
-        print(f"Function args: {args_types}")
+        args_types = function["args_types"]
+        args_names = function["args_names"]
+        print(f"Function args_names: {args_names}")
+        print(f"Function args_types: {args_types}")
         print(f"Function return type: {function['returns']}")
+        print(f"Function conditions: {conditions.get(name, {})}")
         if function["returns"] is None or function["returns"] == "None":
             print(f"Function {name} has no return type annotation. Skipping...")
             continue
 
+        conditions_solution = []
+        for condition in conditions.get(name, []):
+            conditions_solution.append(
+                solve_conditions(conditions.get(name), args_names)
+            )
+        print(f"Conditions solution: {conditions_solution}")
         text_func += f"def test_{name}_values():\n"
         for cur_test in range(3):
             args = []
