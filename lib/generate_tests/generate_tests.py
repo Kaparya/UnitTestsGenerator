@@ -46,10 +46,9 @@ def generate_test_file(
     complexities = analyze_file_complexity(file_path)
     conditions = extract_conditions(file_path)
     for name, complexity in complexities.items():
-        text_func += (
-            f"# Complexity of function {name} is {complexity}\n"
-            f"#    conditions: {conditions[name]}\n"
-        )
+        text_func += f"# Complexity of function {name} is {complexity}\n"
+        for condition, paths in conditions[name]:
+            text_func += f"#    {condition}, {paths}\n"
     text_func += "\n\n"
 
     text_func += add_types_tests(file_path, module_name, project_directory, canonize)
