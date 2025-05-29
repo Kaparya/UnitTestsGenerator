@@ -1,5 +1,5 @@
 import ast
-from typing import Dict
+from typing import Dict, Union
 
 
 class ComplexityVisitor(ast.NodeVisitor):
@@ -46,7 +46,7 @@ class ComplexityVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-def calculate_function_complexity(node: ast.FunctionDef | ast.AsyncFunctionDef) -> int:
+def calculate_function_complexity(node: Union[ast.FunctionDef, ast.AsyncFunctionDef]) -> int:
     visitor = ComplexityVisitor()
     visitor.visit(node)
     return visitor.complexity + 1

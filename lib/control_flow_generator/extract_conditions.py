@@ -5,28 +5,34 @@ class ConditionExtractor(ast.NodeVisitor):
     def __init__(self):
         self.paths = []
         self.current_path = []
-
+        self.seen_paths = set()  
+    
     def visit_If(self, node):
-        self.current_path.append(ast.unparse(node.test))
+        self.current_path.append(("if", ast.unparse(node.test)))
         self.generic_visit(node)
         self.current_path.pop()
 
+        if node.orelse:
+            self.current_path.append(("else", ast.unparse(node.test)))
+            self.generic_visit(node)
+            self.current_path.pop()
+
     def visit_For(self, node):
-        self.current_path.append([ast.unparse(node.target), ast.unparse(node.iter)])
+        self.current_path.append(("for", f"{ast.unparse(node.target)} in {ast.unparse(node.iter)}"))
         self.generic_visit(node)
         self.current_path.pop()
 
     def visit_While(self, node):
-        self.current_path.append(ast.unparse(node.test))
+        self.current_path.append(("while", ast.unparse(node.test)))
         self.generic_visit(node)
         self.current_path.pop()
 
     def visit_Return(self, node):
-        path = list(self.current_path)  # сохраняем копию пути
-        self.paths.append(path)
-        # Не забудем обойти вложенные узлы внутри return (например, return f(x))
+        path = tuple(self.current_path)  
+        if path not in self.seen_paths:
+            self.seen_paths.add(path)
+            self.paths.append(list(path))  
         self.generic_visit(node)
-
 
 def extract_conditions(file_path: str):
     with open(file_path, "r", encoding="utf-8") as f:

@@ -104,7 +104,7 @@ def add_values_tests(
         conditions_solution = []
         for condition in conditions.get(name, []):
             conditions_solution.append(
-                solve_conditions(conditions.get(name), args_names)
+                solve_conditions(conditions.get(name), args_names, args_types)
             )
         print(f"Conditions solution: {conditions_solution}")
         text_func += f"def test_{name}_values():\n"
