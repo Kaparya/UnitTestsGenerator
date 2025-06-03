@@ -78,7 +78,7 @@ def add_values_tests(
     file_path: str,
     module_name: str,
     project_directory: str,
-    conditions: dict[str, dict[str, list[str]]],
+    conditions: dict[str, list[str]],
 ) -> str:
     """
     Generate test functions to test correct and actual outputs of functions.
@@ -96,16 +96,15 @@ def add_values_tests(
         print(f"Function args_names: {args_names}")
         print(f"Function args_types: {args_types}")
         print(f"Function return type: {function['returns']}")
-        print(f"Function conditions: {conditions.get(name, {})}")
+        print(f"Function conditions: {conditions.get(name, [])}")
         if function["returns"] is None or function["returns"] == "None":
             print(f"Function {name} has no return type annotation. Skipping...")
             continue
 
         conditions_solution = []
         for condition in conditions.get(name, []):
-            conditions_solution.append(
-                solve_conditions(conditions.get(name), args_names, args_types)
-            )
+            print("+++++++++++", condition)
+            conditions_solution.append(solve_conditions(condition, args_names))
         print(f"Conditions solution: {conditions_solution}")
         text_func += f"def test_{name}_values():\n"
         for cur_test in range(3):

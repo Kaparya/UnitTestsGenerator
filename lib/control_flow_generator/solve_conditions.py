@@ -1,65 +1,51 @@
-from z3 import *
+from typing import List, Tuple, Union
+from z3 import Int, And, Or, Not, Solver, sat
 
 
-class PathSolver:
-    def __init__(self, var_names, var_types):
-        self.var_names = var_names
-        self.var_types = var_types
-        self.variables = {}
-        self._init_variables()
-    
-    def _init_variables(self):
-        for name, typ in zip(self.var_names, self.var_types):
-            if typ == "int":
-                self.variables[name] = Int(name)
-            elif typ == "float":
-                self.variables[name] = Real(name)
-            elif typ == "bool":
-                self.variables[name] = Bool(name)
-            else:
-                self.variables[name] = Int(name)  #Default
+Interval = Tuple[Union[int, float], Union[int, float]]
 
-    def solve_conditions(self, conditions):
-        unique_conditions = set()
 
-        for path in conditions:
-            for cond_type, cond in path:
-                if cond_type in ('if', 'else'):
-                    unique_conditions.add((cond_type, cond))
-        
-        solutions = []
-        solver = Solver()
+def solve_conditions(exprs, var_names, number_of_solutions=3, var_range=(-1e9, 1e9)):
+    for i in range(len(exprs)):
+        exprs[i] = (
+            exprs[i].replace("&", " and ").replace("|", " or ").replace("~", " not ")
+        )
+    expr_str = " and ".join(exprs)
+    print("=========", expr_str)
+    if expr_str[-4:-1] == "and":
+        expr_str = expr_str[:-4]
+    variables = {v: Int(v) for v in var_names}
 
-        for cond_type, cond in unique_conditions:
-            solver.push()
-            
-            try:
-                parsed = eval(cond, {}, self.variables)
-                if cond_type == 'else':
-                    solver.add(Not(parsed))
-                else:
-                    solver.add(parsed)
-                
-                if solver.check() == sat:
-                    model = solver.model()
-                    solution = {}
-                    for name in self.var_names:
-                        if name in self.variables:
-                            if self.var_types[self.var_names.index(name)] == "int":
-                                solution[name] = model[self.variables[name]].as_long()
-                            elif self.var_types[self.var_names.index(name)] == "float":
-                                solution[name] = float(model[self.variables[name]].as_decimal(3))
-                            elif self.var_types[self.var_names.index(name)] == "bool":
-                                solution[name] = bool(model[self.variables[name]])
-                    solutions.append(solution)
-            except:
-                continue
-                
-            solver.pop()
-        
-        return solutions
+    context = {**variables, "And": And, "Or": Or, "Not": Not}
+    try:
+        if " or " in expr_str:
+            parts = [eval(part, context) for part in expr_str.split(" or ")]
+            z3_expr = Or(*parts)
+        elif " and " in expr_str:
+            parts = [eval(part, context) for part in expr_str.split(" and ")]
+            z3_expr = And(*parts)
+        else:
+            z3_expr = eval(expr_str, context)
+    except Exception as e:
+        print(f"Ошибка при парсинге выражения: {e}\nВыражение: {expr_str}")
+        return None
 
-def solve_conditions(conditions, args_names, args_types):
-    solver = PathSolver(args_names, args_types)
-    solutions = solver.solve_conditions(conditions)
-    return solutions
+    # Решаем
+    s = Solver()
+    s.add(z3_expr)
+
+    for v in variables.values():
+        s.add(v >= var_range[0], v <= var_range[1])
+
+    results = []
+
+    while len(results) < number_of_solutions and s.check() == sat:
+        model = s.model()
+        result = {str(d): model[d] for d in model}
+        if result not in results:  # избегаем дубликатов
+            results.append(result)
+
+        # Запрещаем текущее решение
+        s.add(Or(*[variables[k] != v for k, v in result.items()]))
+
+    return results
