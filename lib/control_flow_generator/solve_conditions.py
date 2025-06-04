@@ -5,7 +5,31 @@ from z3 import Int, And, Or, Not, Solver, sat
 Interval = Tuple[Union[int, float], Union[int, float]]
 
 
-def solve_conditions(exprs, var_names, number_of_solutions=3, var_range=(-1e9, 1e9)):
+def expand_expressions(expr_str: str, delimiter: str, orig_exprs: bool) -> list[str]:
+    
+    operands = {
+        '==': '!=',
+        '!=': '==',
+        '>=': '<',
+        '<=': '>',
+        '>': '<=',
+        '<': '>='
+    }
+
+    extended_expr = []
+    for expr in expr_str.split(delimiter):
+        if orig_exprs:
+            extended_expr.append(expr)
+        else:
+            for oper, neg_oper in operands.items():
+                if oper in expr:
+                    extended_expr.append(expr.replace(oper, neg_oper))
+                    break
+    
+    return extended_expr
+
+
+def solve_conditions(exprs, var_names, number_of_solutions=3, var_range=(-1e9, 1e9), orig_exprs=True):
     for i in range(len(exprs)):
         exprs[i] = (
             exprs[i].replace("&", " and ").replace("|", " or ").replace("~", " not ")
@@ -19,10 +43,10 @@ def solve_conditions(exprs, var_names, number_of_solutions=3, var_range=(-1e9, 1
     context = {**variables, "And": And, "Or": Or, "Not": Not}
     try:
         if " or " in expr_str:
-            parts = [eval(part, context) for part in expr_str.split(" or ")]
+            parts = [eval(part, context) for part in expand_expressions(expr_str, " or ", orig_exprs)]
             z3_expr = Or(*parts)
         elif " and " in expr_str:
-            parts = [eval(part, context) for part in expr_str.split(" and ")]
+            parts = [eval(part, context) for part in expand_expressions(expr_str, " and ", orig_exprs)]
             z3_expr = And(*parts)
         else:
             z3_expr = eval(expr_str, context)
@@ -33,7 +57,7 @@ def solve_conditions(exprs, var_names, number_of_solutions=3, var_range=(-1e9, 1
     # Решаем
     s = Solver()
     s.add(z3_expr)
-
+        
     for v in variables.values():
         s.add(v >= var_range[0], v <= var_range[1])
 
