@@ -4,6 +4,7 @@ from lib.save_file import create_conftest
 
 import argparse
 import pytest
+import os
 
 
 def main():
@@ -47,8 +48,15 @@ def main():
             project_directory = args.project_directory
         create_conftest(project_directory)
         pytest_pathes = generate_tests(code_files, project_directory, args.canonize)
-
-    pytest.main(pytest_pathes)
+    
+    if os.path.isdir(args.project_directory):
+        pytest_args = pytest_pathes + [
+            f"--cov={args.project_directory}",
+            "--cov-report=term-missing"
+        ]
+        pytest.main(pytest_args)
+    else:
+        pytest.main(pytest_pathes)
 
 
 if __name__ == "__main__":
