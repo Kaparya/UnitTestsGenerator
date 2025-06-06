@@ -52,7 +52,8 @@ def main():
     if os.path.isdir(args.project_directory):
         pytest_args = pytest_pathes + [
             f"--cov={args.project_directory}",
-            "--cov-report=term-missing"
+            "--cov-report=term-missing",
+            "--cov-config=.coveragerc"
         ]
         pytest.main(pytest_args)
     else:
