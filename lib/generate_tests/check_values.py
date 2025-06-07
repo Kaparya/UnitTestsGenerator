@@ -1,5 +1,5 @@
 from .generate_random_value import generate_random_value
-from lib.control_flow_generator import solve_conditions
+from lib.control_flow_generator import solve_conditions, solve_string_conditions
 
 import os
 import sys
@@ -106,6 +106,7 @@ def add_values_tests(
             print("+++++++++++", condition)
             conditions_solution.append(solve_conditions(exprs=condition, var_names=args_names, orig_exprs=True))
             conditions_solution.append(solve_conditions(exprs=condition, var_names=args_names, orig_exprs=False))
+            conditions_solution.append(solve_string_conditions(exprs=condition, var_names=args_names))
         print(f"Conditions solution: {conditions_solution}")
         text_func += f"def test_{name}_values():\n"
         for cur_test in range(3):
