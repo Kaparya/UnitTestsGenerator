@@ -1,5 +1,5 @@
 from typing import List, Tuple, Union
-from z3 import Int, And, Or, Not, String, StringVal, Solver, sat
+from z3 import Int, Real, And, Or, Not, String, StringVal, Solver, sat
 import re
 
 Interval = Tuple[Union[int, float], Union[int, float]]
@@ -77,7 +77,7 @@ def solve_string_conditions(exprs, var_names, number_of_solutions=3):
     return results
 
 
-def solve_conditions(exprs, var_names, number_of_solutions=3, var_range=(-1e9, 1e9), orig_exprs=True):
+def solve_conditions(exprs, var_names, var_types, number_of_solutions=3, var_range=(-1e9, 1e9), orig_exprs=True):
     for i in range(len(exprs)):
         exprs[i] = (
             exprs[i].replace("&", " and ").replace("|", " or ").replace("~", " not ")
@@ -87,7 +87,12 @@ def solve_conditions(exprs, var_names, number_of_solutions=3, var_range=(-1e9, 1
         expr_str = expr_str[:-4]
     print("=========", expr_str)
     
-    variables = {v: Int(v) for v in var_names}
+    variables = {}
+    for i in range(len(var_names)):
+        if var_types[i] == "int" or var_types[i] is None:
+            variables[var_names[i]] = Int(var_names[i])
+        elif var_types[i] == "float":
+            variables[var_names[i]] = Real(var_names[i])    
 
     context = {**variables, "And": And, "Or": Or, "Not": Not}
     try:

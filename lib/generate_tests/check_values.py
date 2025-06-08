@@ -104,9 +104,11 @@ def add_values_tests(
         conditions_solution = []
         for condition in conditions.get(name, []):
             print("+++++++++++", condition)
-            conditions_solution.append(solve_conditions(exprs=condition, var_names=args_names, orig_exprs=True))
-            conditions_solution.append(solve_conditions(exprs=condition, var_names=args_names, orig_exprs=False))
-            conditions_solution.append(solve_string_conditions(exprs=condition, var_names=args_names))
+            if "str" in args_types:
+                conditions_solution.append(solve_string_conditions(exprs=condition, var_names=args_names))
+            else:
+                conditions_solution.append(solve_conditions(exprs=condition, var_names=args_names, var_types=args_types, orig_exprs=True))
+                conditions_solution.append(solve_conditions(exprs=condition, var_names=args_names, var_types=args_types, orig_exprs=False))
         print(f"Conditions solution: {conditions_solution}")
         text_func += f"def test_{name}_values():\n"
         for cur_test in range(3):
