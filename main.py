@@ -37,9 +37,11 @@ def main():
     if args.file_path:
         if not args.project_directory:
             print("Project directory must be specified when using a file path.")
-        create_conftest(args.project_directory)
+
+        project_directory = args.project_directory
+        create_conftest(project_directory)
         pytest_pathes = generate_tests(
-            [args.file_path], args.project_directory, args.canonize
+            [args.file_path], project_directory, args.canonize
         )
     elif args.folder_path:
         code_files = find_all_code_files(args.folder_path)
@@ -48,16 +50,15 @@ def main():
             project_directory = args.project_directory
         create_conftest(project_directory)
         pytest_pathes = generate_tests(code_files, project_directory, args.canonize)
-    
-    if os.path.isdir(args.project_directory):
-        pytest_args = pytest_pathes + [
-            f"--cov={args.project_directory}",
+
+    if os.path.isdir(project_directory):
+        pytest_pathes = pytest_pathes + [
+            f"--cov={project_directory}",
             "--cov-report=term-missing",
-            "--cov-config=.coveragerc"
+            "--cov-config=.coveragerc",
         ]
-        pytest.main(pytest_args)
-    else:
-        pytest.main(pytest_pathes)
+
+    pytest.main(pytest_pathes)
 
 
 if __name__ == "__main__":
