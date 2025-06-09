@@ -28,7 +28,12 @@ def main():
         "--project_directory",
         help="Path to the project directory root",
     )
-
+    parser.add_argument(
+        "--cov",
+        help="Code coverage analysis",
+        action="store_true",
+    )
+    
     args = parser.parse_args()
     if not (args.file_path or args.folder_path):
         parser.print_help()
@@ -51,7 +56,7 @@ def main():
         create_conftest(project_directory)
         pytest_pathes = generate_tests(code_files, project_directory, args.canonize)
 
-    if os.path.isdir(project_directory):
+    if args.cov and os.path.isdir(project_directory):
         pytest_pathes = pytest_pathes + [
             f"--cov={project_directory}",
             "--cov-report=term-missing",
@@ -59,6 +64,8 @@ def main():
         ]
 
     pytest.main(pytest_pathes)
+
+
 
 
 if __name__ == "__main__":
