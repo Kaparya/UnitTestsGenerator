@@ -29,7 +29,7 @@ def main():
         "-c",
         "--canonize",
         help="Canonize generated tests",
-        action="store_true",
+        action="store_false",
     )
     parser.add_argument(
         "-pd",
