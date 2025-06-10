@@ -6,6 +6,7 @@ import importlib.util
 import logging
 import os
 import sys
+from typing import Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +82,7 @@ def add_values_tests(
     module_name: str,
     project_directory: str,
     conditions: dict[str, list[str]],
-) -> str:
+) -> tuple[str, int]:
     """
     Generate test functions to test correct and actual outputs of functions.
     Returns:
@@ -95,7 +96,7 @@ def add_values_tests(
         logger.debug(
             f"Something wrong with file {file_path} or project directory {project_directory}. Skipping."
         )
-        return ""
+        return "", 0
     number_of_tests = 0
     add_project_path(project_directory)
 
@@ -137,7 +138,6 @@ def add_values_tests(
                     )
                 )
         # print(f"Conditions solution: {conditions_solution}")
-        number_of_tests += 1
         text_func += f"def test_{name}_values():\n"
         for cur_test in range(3):
             args = []
@@ -177,7 +177,8 @@ def add_values_tests(
             else:
                 text_func += f"    with pytest.raises({exception_name}):\n"
                 text_func += f"        {name}({', '.join(map(str, args))})\n"
+            number_of_tests += 1
         text_func += "\n\n"
     clear_project_path()
     logger.info(f"Generated {number_of_tests} tests for values")
-    return text_func
+    return text_func, number_of_tests

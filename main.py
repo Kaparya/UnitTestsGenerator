@@ -56,7 +56,7 @@ def main():
 
         project_directory = args.project_directory
         create_conftest(project_directory)
-        pytest_pathes = generate_tests(
+        pytest_pathes, result_str = generate_tests(
             [args.file_path], project_directory, args.canonize
         )
     elif args.folder_path:
@@ -70,7 +70,9 @@ def main():
             project_directory = args.project_directory
 
         create_conftest(project_directory)
-        pytest_pathes = generate_tests(code_files, project_directory, args.canonize)
+        pytest_pathes, result_str = generate_tests(
+            code_files, project_directory, args.canonize
+        )
 
     logging.info(f"Tests generated, starting pytest")
     if args.cov and os.path.isdir(project_directory):
@@ -81,6 +83,7 @@ def main():
         ]
 
     subprocess.run(["pytest", *pytest_pathes, "--disable-warnings"])
+    print(result_str)
 
 
 if __name__ == "__main__":

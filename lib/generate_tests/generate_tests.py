@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 def generate_tests(
     file_paths: list[str], project_directory: str, canonize: bool = False
-) -> list[str]:
+) -> tuple[list[str], str]:
     """
     Generate test files for the given list of file paths.
     Args:
@@ -22,25 +22,33 @@ def generate_tests(
         str: The generated test file (or files) location.
     """
     generated_pathes = []
+    result_str = ""
 
     for file_path in file_paths:
-        generated_tests = generate_test_file(file_path, project_directory, canonize)
-        generated_pathes.append(save_file(file_path, generated_tests))
-    return generated_pathes
+        generated_tests, total_complexity, total_tests = generate_test_file(
+            file_path, project_directory, canonize
+        )
+        if total_tests > 0:
+            generated_pathes.append(save_file(file_path, generated_tests))
+            path = generated_pathes[-1]
+
+            result_str += f"File {path.replace('tests/test_', '')} - complexity {total_complexity} | {total_tests} tests\n"
+    return generated_pathes, result_str
 
 
 def generate_test_file(
     file_path: str, project_directory: str, canonize: bool = False
-) -> str:
+) -> tuple[str, int, int]:
     """
     Returns:
         str: The generated test file content.
     """
     if not file_path.endswith(".py"):
         logger.debug(f"File {file_path} is not a Python file. Skipping.")
-        return ""
+        return "", 0, 0
 
     logger.info(f"=== Generating tests for file: {file_path} === ")
+    total_complexity = 0
 
     module_name = parse_raw_file.get_module_name(file_path, project_directory)
     functions = parse_raw_file.get_functions(file_path)
@@ -52,12 +60,19 @@ def generate_test_file(
     complexities = analyze_file_complexity(file_path)
     conditions = extract_conditions(file_path)
     for name, complexity in complexities.items():
+        total_complexity += complexity
         text_func += f"# Complexity of function {name} is {complexity}\n"
         for condition in conditions[name]:
             text_func += f"#    {condition}\n"
     text_func += "\n\n"
 
-    text_func += add_types_tests(file_path, module_name, project_directory, canonize)
-    text_func += add_values_tests(file_path, module_name, project_directory, conditions)
+    values_tests, number_of_values_tests = add_values_tests(
+        file_path, module_name, project_directory, conditions
+    )
+    types_tests, number_of_types_tests = add_types_tests(
+        file_path, module_name, project_directory, canonize
+    )
+    text_func += types_tests
+    text_func += values_tests
 
-    return text_func
+    return text_func, total_complexity, number_of_values_tests + number_of_types_tests

@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 def add_types_tests(
     file_path: str, module_name: str, project_directory: str, canonize: bool
-) -> str:
+) -> tuple[str, int]:
     """
     Generate test functions to test declared and actual outputs of functions.
     Returns:
@@ -63,4 +63,4 @@ def add_types_tests(
             )
     clear_project_path()
     logger.info(f"Generated {number_of_tests} tests for types")
-    return text_func
+    return text_func, number_of_tests
