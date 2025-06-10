@@ -9,7 +9,7 @@ def generate_random_value(annotation: str):
     elif annotation == "float":
         return round(random.uniform(0.0, 100.0), 2)
     elif annotation == "str":
-        return '"' + "".join(random.choices("abcdefghijklmnopqrstuvwxyz", k=5)) + '"'
+        return "".join(random.choices("abcdefghijklmnopqrstuvwxyz", k=5))
     elif annotation == "bool":
         return random.choice([True, False])
     elif annotation.startswith("list") or annotation.startswith("List"):

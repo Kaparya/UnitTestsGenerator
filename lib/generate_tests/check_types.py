@@ -50,6 +50,10 @@ def add_types_tests(
         if exception_name is None:
             number_of_tests += 1
 
+            for i in range(len(input)):
+                if isinstance(input[i], str):
+                    input[i] = '"' + input[i] + '"'
+
             input_text = ", ".join([str(arg) for arg in input])
             text_func += f"def test_types_{name}():\n"
             clean_return_type = function["returns"].split("[")[0].split("(")[0]

@@ -149,7 +149,17 @@ def add_values_tests(
             logger.setLevel(logging.CRITICAL + 1)
             try:
                 result = function["exec"](*args)
-                if isinstance(result, str):
+                if (
+                    isinstance(result, str)
+                    and result != '"'
+                    and result != "'"
+                    and not (
+                        result.startswith(('"'))
+                        and result.endswith(('"'))
+                        or result.startswith(("'"))
+                        and result.endswith(("'"))
+                    )
+                ):
                     result = '"' + result + '"'
             except Exception as e:
                 exception_name = type(e).__name__
@@ -157,6 +167,9 @@ def add_values_tests(
             finally:
                 logger.setLevel(previous_level)
 
+            for i in range(len(args)):
+                if isinstance(args[i], str):
+                    args[i] = '"' + args[i] + '"'
             if exception_name is None:
                 text_func += (
                     f"    assert {name}({', '.join(map(str, args))}) == {result}\n"
