@@ -1,4 +1,8 @@
 import ast
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class ConditionExtractor(ast.NodeVisitor):
@@ -31,6 +35,7 @@ class ConditionExtractor(ast.NodeVisitor):
 
 
 def extract_conditions(file_path: str):
+    logger.debug(f"Extracting conditions from file")
     with open(file_path, "r", encoding="utf-8") as f:
         source = f.read()
         tree = ast.parse(source)
@@ -38,7 +43,6 @@ def extract_conditions(file_path: str):
         function_ifs = {}
         for node in ast.walk(tree):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                print(f"Function name: {node.name}")
                 extractor = ConditionExtractor()
                 extractor.visit(node)
                 function_ifs[node.name] = extractor.paths

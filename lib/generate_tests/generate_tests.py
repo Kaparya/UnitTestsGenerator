@@ -4,6 +4,9 @@ from .check_values import add_values_tests
 import lib.parse_raw_file as parse_raw_file
 from lib.control_flow_generator import analyze_file_complexity, extract_conditions
 from lib.save_file import save_file
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def generate_tests(
@@ -33,10 +36,13 @@ def generate_test_file(
     Returns:
         str: The generated test file content.
     """
+    if not file_path.endswith(".py"):
+        logger.debug(f"File {file_path} is not a Python file. Skipping.")
+        return ""
+
+    logger.info(f"=== Generating tests for file: {file_path} === ")
 
     module_name = parse_raw_file.get_module_name(file_path, project_directory)
-    print("Current module name:", module_name)
-
     functions = parse_raw_file.get_functions(file_path)
 
     text_func = "import pytest\n"

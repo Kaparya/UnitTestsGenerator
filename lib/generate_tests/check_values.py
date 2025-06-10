@@ -1,10 +1,13 @@
 from .generate_random_value import generate_random_value
 from lib.control_flow_generator import solve_conditions, solve_string_conditions
 
-import os
-import sys
 import ast
 import importlib.util
+import logging
+import os
+import sys
+
+logger = logging.getLogger(__name__)
 
 
 def add_project_path(path):
@@ -24,7 +27,7 @@ def parse_function_names(filepath: str):
     tree = ast.parse(source, filename=filepath)
     functions = []
     for node in ast.walk(tree):
-        if isinstance(node, ast.FunctionDef):
+        if isinstance(node, ast.FunctionDef) and not node.name.startswith("_"):
             args_types = []
             args_names = []
             for arg in node.args.args:
@@ -70,7 +73,6 @@ def load_functions_dynamically(filepath: str, module_name: str):
                     "args_types": cur_func["args_types"],
                     "returns": cur_func["returns"],
                 }
-
     return functions
 
 
@@ -85,31 +87,57 @@ def add_values_tests(
     Returns:
         str: The generated text of tests.
     """
-
+    if (
+        not file_path.endswith(".py")
+        or not os.path.isfile(file_path)
+        or not os.path.isdir(project_directory)
+    ):
+        logger.debug(
+            f"Something wrong with file {file_path} or project directory {project_directory}. Skipping."
+        )
+        return ""
+    number_of_tests = 0
     add_project_path(project_directory)
 
     text_func = ""
     for name, function in load_functions_dynamically(file_path, module_name).items():
-        print(f"Function name: {name}")
+        # print(f"Function name: {name}")
         args_types = function["args_types"]
         args_names = function["args_names"]
-        print(f"Function args_names: {args_names}")
-        print(f"Function args_types: {args_types}")
-        print(f"Function return type: {function['returns']}")
-        print(f"Function conditions: {conditions.get(name, [])}")
-        if function["returns"] is None or function["returns"] == "None":
-            print(f"Function {name} has no return type annotation. Skipping...")
-            continue
+        # print(f"Function args_names: {args_names}")
+        # print(f"Function args_types: {args_types}")
+        # print(f"Function return type: {function['returns']}")
+        # print(f"Function conditions: {conditions.get(name, [])}")
+        # if function["returns"] is None or function["returns"] == "None":
+        #     print(f"Function {name} has no return type annotation. Skipping...")
+        #     continue
 
         conditions_solution = []
         for condition in conditions.get(name, []):
-            print("+++++++++++", condition)
+            # print("+++++++++++", condition)
             if "str" in args_types:
-                conditions_solution.append(solve_string_conditions(exprs=condition, var_names=args_names))
+                conditions_solution.append(
+                    solve_string_conditions(exprs=condition, var_names=args_names)
+                )
             else:
-                conditions_solution.append(solve_conditions(exprs=condition, var_names=args_names, var_types=args_types, orig_exprs=True))
-                conditions_solution.append(solve_conditions(exprs=condition, var_names=args_names, var_types=args_types, orig_exprs=False))
-        print(f"Conditions solution: {conditions_solution}")
+                conditions_solution.append(
+                    solve_conditions(
+                        exprs=condition,
+                        var_names=args_names,
+                        var_types=args_types,
+                        orig_exprs=True,
+                    )
+                )
+                conditions_solution.append(
+                    solve_conditions(
+                        exprs=condition,
+                        var_names=args_names,
+                        var_types=args_types,
+                        orig_exprs=False,
+                    )
+                )
+        # print(f"Conditions solution: {conditions_solution}")
+        number_of_tests += 1
         text_func += f"def test_{name}_values():\n"
         for cur_test in range(3):
             args = []
@@ -117,13 +145,17 @@ def add_values_tests(
                 args.append(generate_random_value(arg_type))
 
             exception_name = None
+            previous_level = logger.level
+            logger.setLevel(logging.CRITICAL + 1)
             try:
                 result = function["exec"](*args)
                 if isinstance(result, str):
                     result = '"' + result + '"'
             except Exception as e:
                 exception_name = type(e).__name__
-                print(exception_name)
+                logger.debug(exception_name)
+            finally:
+                logger.setLevel(previous_level)
 
             if exception_name is None:
                 text_func += (
@@ -134,4 +166,5 @@ def add_values_tests(
                 text_func += f"        {name}({', '.join(map(str, args))})\n"
         text_func += "\n\n"
     clear_project_path()
+    logger.info(f"Generated {number_of_tests} tests for values")
     return text_func

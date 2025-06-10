@@ -1,5 +1,23 @@
 import ast
+import logging
 import os
+
+
+logger = logging.getLogger(__name__)
+
+
+def get_module_name(file_path: str, project_directory: str) -> str:
+    if (
+        not project_directory.startswith("./")
+        and not project_directory == "."
+        and project_directory in file_path
+    ):
+        file_path = file_path.replace(project_directory, "")
+
+    module_name = file_path.split(".")[-2].replace("/", ".").replace("\\", ".")
+    if module_name.startswith((".", "\\", "/")):
+        module_name = module_name[1:]
+    return module_name
 
 
 def get_functions(file_path: str) -> list[str]:
@@ -16,6 +34,7 @@ def get_functions(file_path: str) -> list[str]:
     tree = ast.parse(file_content, filename=file_path)
     functions = [node.name for node in tree.body if isinstance(node, ast.FunctionDef)]
 
+    logger.info(f"Found {len(functions)} functions")
     return functions
 
 
@@ -66,18 +85,3 @@ def get_functions_info(file_path: str) -> dict:
             functions[node.name] = func_text
 
     return functions
-
-
-def get_module_name(file_path: str, project_directory: str) -> str:
-    if (
-        not project_directory.startswith("./")
-        and not project_directory == "."
-        and project_directory in file_path
-    ):
-        file_path = file_path.replace(project_directory, "")
-
-    module_name = file_path.split(".")[-2].replace("/", ".").replace("\\", ".")
-    if module_name.startswith((".", "\\", "/")):
-        module_name = module_name[1:]
-    print("--------------", module_name, file_path)
-    return module_name

@@ -1,5 +1,8 @@
 import ast
+import logging
 from typing import Dict, Union
+
+logger = logging.getLogger(__name__)
 
 
 class ComplexityVisitor(ast.NodeVisitor):
@@ -46,13 +49,16 @@ class ComplexityVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-def calculate_function_complexity(node: Union[ast.FunctionDef, ast.AsyncFunctionDef]) -> int:
+def calculate_function_complexity(
+    node: Union[ast.FunctionDef, ast.AsyncFunctionDef],
+) -> int:
     visitor = ComplexityVisitor()
     visitor.visit(node)
     return visitor.complexity + 1
 
 
 def analyze_file_complexity(filepath: str) -> Dict[str, int]:
+    logger.debug(f"Analyzing file for cyclomatic complexity")
     with open(filepath, "r", encoding="utf-8") as f:
         code = f.read()
 
@@ -62,6 +68,9 @@ def analyze_file_complexity(filepath: str) -> Dict[str, int]:
     for node in ast.walk(tree):
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             complexity = calculate_function_complexity(node)
+            logger.debug(
+                f"Function {node.name} has cyclomatic complexity: {complexity}"
+            )
             complexities[node.name] = complexity
 
     return complexities

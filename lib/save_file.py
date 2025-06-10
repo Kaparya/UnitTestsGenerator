@@ -1,10 +1,26 @@
+import logging
 import os
 import re
+
+logger = logging.getLogger(__name__)
+
+
+def create_conftest(project_directory: str) -> None:
+    """
+    Create a conftest.py file in the tests folder.
+    Args:
+        project_directory (str): The path to the project directory root.
+    """
+    conftest_path = os.path.join(project_directory, "conftest.py")
+    if not os.path.isfile(conftest_path):
+        with open(conftest_path, "w") as conftest_file:
+            conftest_file.write("")
+        logger.info(f"File conftest.py created in project directory root")
 
 
 def create_path_testfile(original_file_path: str) -> str:
     """
-    Generate path of file with tests  
+    Generate path of file with tests
     Args:
         original_file_path (str): The path to the original file.
     Returns:
@@ -35,21 +51,8 @@ def save_file(original_file_path: str, content: str):
     Returns:
         str: The path to the saved test file.
     """
-
     test_file_path = create_path_testfile(original_file_path)
 
     with open(test_file_path, "w") as test_file:
         test_file.write(content)
     return test_file_path
-
-
-def create_conftest(project_directory: str) -> None:
-    """
-    Create a conftest.py file in the tests folder.
-    Args:
-        project_directory (str): The path to the project directory root.
-    """
-    conftest_path = os.path.join(project_directory, "conftest.py")
-    if not os.path.isfile(conftest_path):
-        with open(conftest_path, "w") as conftest_file:
-            conftest_file.write("")
