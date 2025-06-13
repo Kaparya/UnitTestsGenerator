@@ -22,7 +22,7 @@ def generate_tests(
         str: The generated test file (or files) location.
     """
     generated_pathes = []
-    result_str = ""
+    metrics = []
 
     for file_path in file_paths:
         generated_tests, total_complexity, total_tests = generate_test_file(
@@ -32,8 +32,8 @@ def generate_tests(
             generated_pathes.append(save_file(file_path, generated_tests))
             path = generated_pathes[-1]
 
-            result_str += f"File {path.replace('tests/test_', '')} - complexity {total_complexity} | {total_tests} tests\n"
-    return generated_pathes, result_str
+            metrics.append([path.replace('tests/test_', ''), total_complexity, total_tests])
+    return generated_pathes, metrics
 
 
 def generate_test_file(

@@ -1,5 +1,4 @@
-from lib import generate_tests
-from lib import find_all_code_files
+from lib import find_all_code_files, generate_tests, print_metrics
 from lib.save_file import create_conftest
 
 import argparse
@@ -56,7 +55,7 @@ def main():
 
         project_directory = args.project_directory
         create_conftest(project_directory)
-        pytest_pathes, result_str = generate_tests(
+        pytest_pathes, metrics = generate_tests(
             [args.file_path], project_directory, args.canonize
         )
     elif args.folder_path:
@@ -70,7 +69,7 @@ def main():
             project_directory = args.project_directory
 
         create_conftest(project_directory)
-        pytest_pathes, result_str = generate_tests(
+        pytest_pathes, metrics = generate_tests(
             code_files, project_directory, args.canonize
         )
 
@@ -83,7 +82,8 @@ def main():
         ]
 
     subprocess.run(["pytest", *pytest_pathes, "--disable-warnings"])
-    print(result_str)
+
+    print_metrics(metrics)
 
 
 if __name__ == "__main__":
